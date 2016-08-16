@@ -142,4 +142,18 @@ describe('plugin', () => {
         .spread((result) => expect(result).to.be.true);
     });
   });
+
+  describe('flush function', () => {
+    it('should flush all memories', () => {
+      return cache.flush()
+        .then((result) => expect(result).to.be.true);
+    });
+  });
+
+  describe('keys function', () => {
+    it('should list all memory keys', () => {
+      return cache.keys()
+        .then((results) => expect(results).to.have.lengthOf(2));
+    });
+  });
 });
