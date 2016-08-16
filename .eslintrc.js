@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-  extends: 'vinli/server'
+  extends: 'vinli/server',
+  rules: { 'no-undefined': 0 }
 };
