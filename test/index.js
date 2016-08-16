@@ -24,22 +24,22 @@ describe('plugin', () => {
       expect(cache).to.be.an('object');
     });
 
-    it('should initialize with memories', () => {
+    it('should initialize with multiple memories', () => {
       cache = new Reminisce({ memories });
 
       expect(cache).to.be.an('object');
     });
 
-    it('should initialize without memories', () => {
-      cache = new Reminisce();
+    it('should initialize with options', () => {
+      cache = new Reminisce({
+        options: { ttl: 10000, interval: 60000 }
+      });
 
       expect(cache).to.be.an('object');
     });
 
-    it('should take options', () => {
-      cache = new Reminisce({
-        options: { ttl: 10000, interval: 60000 }
-      });
+    it('should initialize without memories or options', () => {
+      cache = new Reminisce();
 
       expect(cache).to.be.an('object');
     });
