@@ -1,6 +1,8 @@
 'use strict';
 
+const B = require('bluebird');
 const expect = require('chai').expect;
+
 const Reminisce = require('../');
 
 describe('plugin', () => {
@@ -13,7 +15,7 @@ describe('plugin', () => {
   beforeEach(() => {
     cache = new Reminisce({
       memories,
-      options: { ttl: 60000, interval: 30000 }
+      options: { ttl: 5000, interval: 2500 }
     });
   });
 
@@ -32,7 +34,7 @@ describe('plugin', () => {
 
     it('should initialize with options', () => {
       cache = new Reminisce({
-        options: { ttl: 10000, interval: 60000 }
+        options: { ttl: 10000, interval: 5000 }
       });
 
       expect(cache).to.be.an('object');
@@ -66,7 +68,7 @@ describe('plugin', () => {
           expect(m).to.have.deep.property('[0].expires');
           expect(m).to.have.deep.property('[1].key', 'test2');
           expect(m).to.have.deep.property('[1].val', 2);
-          expect(m).to.have.deep.property('[1].ttl', 60000);
+          expect(m).to.have.deep.property('[1].ttl', 5000);
           expect(m).to.have.deep.property('[1].expires');
         });
     });
@@ -105,7 +107,7 @@ describe('plugin', () => {
           expect(m).to.have.deep.property('[0].expires');
           expect(m).to.have.deep.property('[1].key', 'setTest2');
           expect(m).to.have.deep.property('[1].val', 2);
-          expect(m).to.have.deep.property('[1].ttl', 60000);
+          expect(m).to.have.deep.property('[1].ttl', 5000);
           expect(m).to.have.deep.property('[1].expires');
         });
     });
@@ -154,6 +156,22 @@ describe('plugin', () => {
     it('should list all memory keys', () => {
       return cache.keys()
         .then((results) => expect(results).to.have.lengthOf(2));
+    });
+  });
+
+  describe('memory timeouts', () => {
+    it('memories should get wiped after their ttl expires', () => {
+      cache = new Reminisce({
+        memories: { key: 'timeout1', val: 1 },
+        options: { ttl: 50, interval: 25 }
+      });
+
+      return cache.set({ key: 'timeout2', val: 1, ttl: 50 })
+        .then(() => B.delay(100))
+        .then(() => cache.get('timeout2'))
+        .spread((m) => expect(m).to.be.undefined)
+        .then(() => cache.get('timeout1'))
+        .spread((m) => expect(m).to.be.undefined);
     });
   });
 });
