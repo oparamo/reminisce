@@ -1,7 +1,8 @@
 {
   "name": "reminisce",
   "version": "0.1.0",
-  "description": "Simple Node.js caching module.",
+  "description": "Simple Node.js caching module with promises.",
+  "engines": { "node": "^4.0.0" },
   "main": "index.js",
   "directories": {
     "test": "test"
