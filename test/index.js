@@ -1,8 +1,6 @@
 'use strict';
 
-const B = require('bluebird');
 const expect = require('chai').expect;
-
 const Reminisce = require('../');
 
 describe('plugin', () => {
@@ -40,46 +38,47 @@ describe('plugin', () => {
 
   describe('get memories function', () => {
     it('should get a single memory', () => {
-      return cache.get('test1')
-        .spread((m) => {
-          expect(m).to.have.property('key', 'test1');
-          expect(m).to.have.property('val', 1);
-          expect(m).to.have.property('ttl', 10000);
-          expect(m).to.have.property('expires');
+      return cache.get(memories[0].key)
+        .spread((memory) => {
+          expect(memory).to.have.property('expires');
+          expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('ttl');
+          expect(memory).to.have.property('val', memories[0].val);
         });
     });
 
     it('should get multiple memories', () => {
-      return cache.get([ 'test1', 'test2' ])
-        .then((m) => {
-          expect(m).to.have.lengthOf(2);
-          expect(m).to.have.deep.property('[0].key', 'test1');
-          expect(m).to.have.deep.property('[0].val', 1);
-          expect(m).to.have.deep.property('[0].ttl', 10000);
-          expect(m).to.have.deep.property('[0].expires');
-          expect(m).to.have.deep.property('[1].key', 'test2');
-          expect(m).to.have.deep.property('[1].val', 2);
-          expect(m).to.have.deep.property('[1].ttl', 5000);
-          expect(m).to.have.deep.property('[1].expires');
+      const keys = memories.map((memory) => memory.key);
+
+      return cache.get(keys)
+        .then((results) => {
+          expect(results).to.have.lengthOf(2);
+
+          results.forEach((memory, i) => {
+            expect(memory).to.have.property('expires');
+            expect(memory).to.have.property('key', memories[i].key);
+            expect(memory).to.have.property('ttl');
+            expect(memory).to.have.property('val', memories[i].val);
+          });
         });
     });
 
     it('should return undefined if memory does not exist', () => {
       return cache.get('forgot')
-        .spread((m) => expect(m).to.be.undefined);
+        .spread((memory) => expect(memory).to.be.undefined);
     });
   });
 
   describe('set memories function', () => {
     it('should set a single memory', () => {
-      const mem = { key: 'setTest', val: 1, ttl: 10000 };
+      const memory = { key: 'setTest', val: 1, ttl: 10000 };
 
-      return cache.set(mem)
-        .spread((m) => {
-          expect(m).to.have.property('key', mem.key);
-          expect(m).to.have.property('val', mem.val);
-          expect(m).to.have.property('ttl', mem.ttl);
-          expect(m).to.have.property('expires');
+      return cache.set(memory)
+        .spread((mem) => {
+          expect(mem).to.have.property('expires');
+          expect(mem).to.have.property('key', memory.key);
+          expect(mem).to.have.property('ttl');
+          expect(mem).to.have.property('val', memory.val);
         });
     });
 
@@ -90,61 +89,58 @@ describe('plugin', () => {
       ];
 
       return cache.set(setMemories)
-        .then((m) => {
-          expect(m).to.have.lengthOf(2);
-          expect(m).to.have.deep.property('[0].key', 'setTest1');
-          expect(m).to.have.deep.property('[0].val', 1);
-          expect(m).to.have.deep.property('[0].ttl', 10000);
-          expect(m).to.have.deep.property('[0].expires');
-          expect(m).to.have.deep.property('[1].key', 'setTest2');
-          expect(m).to.have.deep.property('[1].val', 2);
-          expect(m).to.have.deep.property('[1].ttl', 5000);
-          expect(m).to.have.deep.property('[1].expires');
+        .then((results) => {
+          expect(results).to.have.lengthOf(2);
+
+          results.forEach((memory, i) => {
+            expect(memory).to.have.property('expires');
+            expect(memory).to.have.property('key', setMemories[i].key);
+            expect(memory).to.have.property('ttl');
+            expect(memory).to.have.property('val', setMemories[i].val);
+          });
         });
     });
 
     it('should override a memory', () => {
-      const mem = { key: 'test2', val: 1, ttl: 10000 };
+      const memory = { key: 'test2', val: 1, ttl: 10000 };
 
-      return cache.set(mem)
-        .spread((m) => {
-          expect(m).to.have.property('val', mem.val);
-          expect(m).to.have.property('ttl', mem.ttl);
-          expect(m).to.have.property('expires');
+      return cache.set(memory)
+        .spread((mem) => {
+          expect(mem).to.have.property('expires');
+          expect(mem).to.have.property('key', memory.key);
+          expect(mem).to.have.property('ttl');
+          expect(mem).to.have.property('val', memory.val);
         });
     });
   });
 
   describe('update memories function', () => {
-    it('should update a single memory value without affecting ttl', () => {
-      let ttl;
+    it('should update a single memory value without affecting expires', () => {
       let expires;
 
-      const mem = { key: 'test1', val: 5 };
+      memories[0].val = 3;
 
-      return cache.update(mem)
-        .spread((m) => {
-          expect(m).to.have.property('key', mem.key);
-          expect(m).to.have.property('val', mem.val);
-          expect(m).to.have.property('ttl');
-          expect(m).to.have.property('expires');
+      return cache.update(memories[0])
+        .spread((memory) => {
+          expect(memory).to.have.property('expires');
+          expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('ttl');
+          expect(memory).to.have.property('val', memories[0].val);
 
-          mem.val = 6;
-          ttl = m.ttl;
-          expires = m.expires;
+          memories[0].val = 4;
+          expires = memory.expires;
 
-          return cache.update(mem);
+          return cache.update(memories[0]);
         })
-        .spread((m) => {
-          expect(m).to.have.property('key', mem.key);
-          expect(m).to.have.property('val', mem.val);
-          expect(m).to.have.property('ttl', ttl);
-          expect(m).to.have.property('expires', expires);
+        .spread((memory) => {
+          expect(memory).to.have.property('expires', expires);
+          expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('ttl');
+          expect(memory).to.have.property('val', memories[0].val);
         });
     });
 
-    it('should update multiple memories values without affecting ttl', () => {
-      const ttl = [];
+    it('should update multiple memories values without affecting expires', () => {
       const expires = [];
 
       const updateMemories = [
@@ -152,18 +148,17 @@ describe('plugin', () => {
         { key: 'test2', val: 4 }
       ];
 
-      return cache.set(updateMemories)
+      return cache.update(updateMemories)
         .then((results) => {
           expect(results).to.have.lengthOf(2);
 
-          results.forEach((mem, i) => {
-            expect(mem).to.have.deep.property('key', updateMemories[i].key);
-            expect(mem).to.have.deep.property('val', updateMemories[i].val);
-            expect(mem).to.have.deep.property('ttl');
-            expect(mem).to.have.deep.property('expires');
+          results.forEach((memory, i) => {
+            expect(memory).to.have.deep.property('expires');
+            expect(memory).to.have.deep.property('key', updateMemories[i].key);
+            expect(memory).to.have.deep.property('ttl');
+            expect(memory).to.have.deep.property('val', updateMemories[i].val);
 
-            ttl.push(mem.ttl);
-            expires.push(mem.expires);
+            expires.push(memory.expires);
           });
 
           updateMemories[0].val = 5;
@@ -174,31 +169,33 @@ describe('plugin', () => {
         .then((results) => {
           expect(results).to.have.lengthOf(2);
 
-          results.forEach((mem, i) => {
-            expect(mem).to.have.deep.property('key', updateMemories[i].key);
-            expect(mem).to.have.deep.property('val', updateMemories[i].val);
-            expect(mem).to.have.deep.property('ttl', ttl[i]);
-            expect(mem).to.have.deep.property('expires', expires[i]);
+          results.forEach((memory, i) => {
+            expect(memory).to.have.deep.property('expires', expires[i]);
+            expect(memory).to.have.deep.property('key', updateMemories[i].key);
+            expect(memory).to.have.deep.property('ttl');
+            expect(memory).to.have.deep.property('val', updateMemories[i].val);
           });
         });
     });
 
     it('should return undefined if memory does not exist', () => {
-      const mem = { key: 'forgot', val: 1 };
+      const memory = { key: 'forgot', val: 1 };
 
-      return cache.update(mem)
-        .spread((m) => expect(m).to.be.undefined);
+      return cache.update(memory)
+        .spread((mem) => expect(mem).to.be.undefined);
     });
   });
 
   describe('delete memories function', () => {
     it('should delete a single memory', () => {
-      return cache.delete('test2')
+      return cache.delete(memories[0].key)
         .spread((result) => expect(result).to.be.true);
     });
 
     it('should delete multiple memories', () => {
-      return cache.delete([ 'test1', 'test2' ])
+      const keys = memories.map((memory) => memory.key);
+
+      return cache.delete(keys)
         .then((results) => {
           expect(results).to.have.lengthOf(2);
 
@@ -221,8 +218,7 @@ describe('plugin', () => {
 
   describe('keys function', () => {
     it('should list all memory keys', () => {
-      return cache.keys()
-        .then((results) => expect(results).to.have.lengthOf(2));
+      expect(cache.keys()).to.have.lengthOf(memories.length);
     });
   });
 
@@ -230,15 +226,17 @@ describe('plugin', () => {
     it('memories should get wiped after their ttl expires', () => {
       cache = new Reminisce({
         memories: { key: 'timeout1', val: 1 },
-        ttl: 50
+        ttl: 10
       });
 
-      return cache.set({ key: 'timeout2', val: 1, ttl: 50 })
-        .then(() => B.delay(100))
-        .then(() => cache.get('timeout2'))
-        .spread((m) => expect(m).to.be.undefined)
-        .then(() => cache.get('timeout1'))
-        .spread((m) => expect(m).to.be.undefined);
+      return cache.set({ key: 'timeout2', val: 1, ttl: 10 })
+        .delay(20)
+        .then(() => cache.get([ 'timeout1', 'timeout2' ]))
+        .then((results) => {
+          expect(results).to.be.lengthOf(2);
+
+          results.forEach((result) => expect(result).to.be.undefined);
+        });
     });
   });
 });
