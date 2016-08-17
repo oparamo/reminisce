@@ -15,10 +15,7 @@ describe('plugin', () => {
       { key: 'test2', val: 2 }
     ];
 
-    cache = new Reminisce({
-      memories,
-      options: { ttl: 5000, interval: 2500 }
-    });
+    cache = new Reminisce({ memories, ttl: 5000 });
   });
 
   describe('constructor', () => {
@@ -34,15 +31,7 @@ describe('plugin', () => {
       expect(cache).to.be.an('object');
     });
 
-    it('should initialize with options', () => {
-      cache = new Reminisce({
-        options: { ttl: 10000, interval: 5000 }
-      });
-
-      expect(cache).to.be.an('object');
-    });
-
-    it('should initialize without memories or options', () => {
+    it('should initialize without options', () => {
       cache = new Reminisce();
 
       expect(cache).to.be.an('object');
@@ -241,7 +230,7 @@ describe('plugin', () => {
     it('memories should get wiped after their ttl expires', () => {
       cache = new Reminisce({
         memories: { key: 'timeout1', val: 1 },
-        options: { ttl: 50, interval: 25 }
+        ttl: 50
       });
 
       return cache.set({ key: 'timeout2', val: 1, ttl: 50 })
