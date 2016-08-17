@@ -6,13 +6,15 @@ const expect = require('chai').expect;
 const Reminisce = require('../');
 
 describe('plugin', () => {
-  const memories = [
-    { key: 'test1', val: 1, ttl: 10000 },
-    { key: 'test2', val: 2 }
-  ];
   let cache;
+  let memories;
 
   beforeEach(() => {
+    memories = [
+      { key: 'test1', val: 1, ttl: 10000 },
+      { key: 'test2', val: 2 }
+    ];
+
     cache = new Reminisce({
       memories,
       options: { ttl: 5000, interval: 2500 }
@@ -48,7 +50,7 @@ describe('plugin', () => {
   });
 
   describe('get memories function', () => {
-    it('get a single memory', () => {
+    it('should get a single memory', () => {
       return cache.get('test1')
         .spread((m) => {
           expect(m).to.have.property('key', 'test1');
@@ -58,7 +60,7 @@ describe('plugin', () => {
         });
     });
 
-    it('get multiple memories', () => {
+    it('should get multiple memories', () => {
       return cache.get([ 'test1', 'test2' ])
         .then((m) => {
           expect(m).to.have.lengthOf(2);
@@ -73,14 +75,14 @@ describe('plugin', () => {
         });
     });
 
-    it('return undefined if memory does not exist', () => {
+    it('should return undefined if memory does not exist', () => {
       return cache.get('forgot')
         .spread((m) => expect(m).to.be.undefined);
     });
   });
 
   describe('set memories function', () => {
-    it('set a single memory', () => {
+    it('should set a single memory', () => {
       const mem = { key: 'setTest', val: 1, ttl: 10000 };
 
       return cache.set(mem)
@@ -92,7 +94,7 @@ describe('plugin', () => {
         });
     });
 
-    it('set multiple memories', () => {
+    it('should set multiple memories', () => {
       const setMemories = [
         { key: 'setTest1', val: 1, ttl: 10000 },
         { key: 'setTest2', val: 2 }
@@ -112,7 +114,7 @@ describe('plugin', () => {
         });
     });
 
-    it('override a memory', () => {
+    it('should override a memory', () => {
       const mem = { key: 'test2', val: 1, ttl: 10000 };
 
       return cache.set(mem)
