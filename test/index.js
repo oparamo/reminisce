@@ -36,12 +36,13 @@ describe('plugin', () => {
     });
   });
 
-  describe('get memories function', () => {
+  describe('get memories', () => {
     it('should get a single memory', () => {
       return cache.get(memories[0].key)
         .spread((memory) => {
           expect(memory).to.have.property('expires');
           expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
           expect(memory).to.have.property('val', memories[0].val);
         });
@@ -57,6 +58,7 @@ describe('plugin', () => {
           results.forEach((memory, i) => {
             expect(memory).to.have.property('expires');
             expect(memory).to.have.property('key', memories[i].key);
+            expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
             expect(memory).to.have.property('val', memories[i].val);
           });
@@ -69,7 +71,7 @@ describe('plugin', () => {
     });
   });
 
-  describe('set memories function', () => {
+  describe('set memories', () => {
     it('should set a single memory', () => {
       const memory = { key: 'setTest', val: 1, ttl: 10000 };
 
@@ -77,6 +79,7 @@ describe('plugin', () => {
         .spread((mem) => {
           expect(mem).to.have.property('expires');
           expect(mem).to.have.property('key', memory.key);
+          expect(mem).to.have.property('lifespan', memory.ttl);
           expect(mem).to.have.property('ttl');
           expect(mem).to.have.property('val', memory.val);
         });
@@ -95,6 +98,7 @@ describe('plugin', () => {
           results.forEach((memory, i) => {
             expect(memory).to.have.property('expires');
             expect(memory).to.have.property('key', setMemories[i].key);
+            expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
             expect(memory).to.have.property('val', setMemories[i].val);
           });
@@ -108,13 +112,14 @@ describe('plugin', () => {
         .spread((mem) => {
           expect(mem).to.have.property('expires');
           expect(mem).to.have.property('key', memory.key);
+          expect(mem).to.have.property('lifespan', memory.ttl);
           expect(mem).to.have.property('ttl');
           expect(mem).to.have.property('val', memory.val);
         });
     });
   });
 
-  describe('update memories function', () => {
+  describe('update memories', () => {
     it('should update a single memory value without affecting expires', () => {
       let expires;
 
@@ -124,6 +129,7 @@ describe('plugin', () => {
         .spread((memory) => {
           expect(memory).to.have.property('expires');
           expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
           expect(memory).to.have.property('val', memories[0].val);
 
@@ -135,6 +141,7 @@ describe('plugin', () => {
         .spread((memory) => {
           expect(memory).to.have.property('expires', expires);
           expect(memory).to.have.property('key', memories[0].key);
+          expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
           expect(memory).to.have.property('val', memories[0].val);
         });
@@ -153,10 +160,11 @@ describe('plugin', () => {
           expect(results).to.have.lengthOf(2);
 
           results.forEach((memory, i) => {
-            expect(memory).to.have.deep.property('expires');
-            expect(memory).to.have.deep.property('key', updateMemories[i].key);
-            expect(memory).to.have.deep.property('ttl');
-            expect(memory).to.have.deep.property('val', updateMemories[i].val);
+            expect(memory).to.have.property('expires');
+            expect(memory).to.have.property('key', updateMemories[i].key);
+            expect(memory).to.have.property('lifespan');
+            expect(memory).to.have.property('ttl');
+            expect(memory).to.have.property('val', updateMemories[i].val);
 
             expires.push(memory.expires);
           });
@@ -170,10 +178,11 @@ describe('plugin', () => {
           expect(results).to.have.lengthOf(2);
 
           results.forEach((memory, i) => {
-            expect(memory).to.have.deep.property('expires', expires[i]);
-            expect(memory).to.have.deep.property('key', updateMemories[i].key);
-            expect(memory).to.have.deep.property('ttl');
-            expect(memory).to.have.deep.property('val', updateMemories[i].val);
+            expect(memory).to.have.property('expires', expires[i]);
+            expect(memory).to.have.property('key', updateMemories[i].key);
+            expect(memory).to.have.property('lifespan');
+            expect(memory).to.have.property('ttl');
+            expect(memory).to.have.property('val', updateMemories[i].val);
           });
         });
     });
@@ -186,7 +195,7 @@ describe('plugin', () => {
     });
   });
 
-  describe('delete memories function', () => {
+  describe('delete memories', () => {
     it('should delete a single memory', () => {
       return cache.delete(memories[0].key)
         .spread((result) => expect(result).to.be.true);
@@ -209,21 +218,21 @@ describe('plugin', () => {
     });
   });
 
-  describe('flush function', () => {
+  describe('flush memories', () => {
     it('should flush all memories', () => {
       return cache.flush()
         .then((result) => expect(result).to.be.true);
     });
   });
 
-  describe('keys function', () => {
+  describe('get keys', () => {
     it('should list all memory keys', () => {
       expect(cache.keys()).to.have.lengthOf(memories.length);
     });
   });
 
-  describe('memory timeouts', () => {
-    it('memories should get wiped after their ttl expires', () => {
+  describe('timing', () => {
+    it('should wipe memories after their ttl is up', () => {
       cache = new Reminisce({
         memories: { key: 'timeout1', val: 1 },
         ttl: 10
@@ -237,6 +246,18 @@ describe('plugin', () => {
 
           results.forEach((result) => expect(result).to.be.undefined);
         });
+    });
+
+    it('should report a smaller ttl when a memory is returned', () => {
+      let ttl;
+
+      return cache.get(memories[0].key)
+        .spread((memory) => {
+          ttl = memory.ttl;
+        })
+        .delay(5)
+        .then(() => cache.get(memories[0].key))
+        .spread((memory) => expect(memory.ttl).to.be.below(ttl));
     });
   });
 });
