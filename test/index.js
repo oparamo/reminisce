@@ -8,10 +8,11 @@ describe('plugin', () => {
   let memories;
 
   beforeEach(() => {
-    memories = [
-      { key: 'test1', val: 1, ttl: 10000 },
-      { key: 'test2', val: 2 }
-    ];
+    memories = [{
+      key: 'test1', value: 1, ttl: 10000
+    }, {
+      key: 'test2', value: 2
+    }];
 
     cache = new Reminisce({ memories, ttl: 5000 });
   });
@@ -44,7 +45,7 @@ describe('plugin', () => {
           expect(memory).to.have.property('key', memories[0].key);
           expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
-          expect(memory).to.have.property('val', memories[0].val);
+          expect(memory).to.have.property('value', memories[0].value);
         });
     });
 
@@ -60,7 +61,7 @@ describe('plugin', () => {
             expect(memory).to.have.property('key', memories[i].key);
             expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
-            expect(memory).to.have.property('val', memories[i].val);
+            expect(memory).to.have.property('value', memories[i].value);
           });
         });
     });
@@ -73,7 +74,7 @@ describe('plugin', () => {
 
   describe('set memories', () => {
     it('should set a single memory', () => {
-      const memory = { key: 'setTest', val: 1, ttl: 10000 };
+      const memory = { key: 'setTest', value: 1, ttl: 10000 };
 
       return cache.set(memory)
         .spread((mem) => {
@@ -81,14 +82,14 @@ describe('plugin', () => {
           expect(mem).to.have.property('key', memory.key);
           expect(mem).to.have.property('lifespan', memory.ttl);
           expect(mem).to.have.property('ttl');
-          expect(mem).to.have.property('val', memory.val);
+          expect(mem).to.have.property('value', memory.value);
         });
     });
 
     it('should set multiple memories', () => {
       const setMemories = [
-        { key: 'setTest1', val: 1, ttl: 10000 },
-        { key: 'setTest2', val: 2 }
+        { key: 'setTest1', value: 1, ttl: 10000 },
+        { key: 'setTest2', value: 2 }
       ];
 
       return cache.set(setMemories)
@@ -100,13 +101,13 @@ describe('plugin', () => {
             expect(memory).to.have.property('key', setMemories[i].key);
             expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
-            expect(memory).to.have.property('val', setMemories[i].val);
+            expect(memory).to.have.property('value', setMemories[i].value);
           });
         });
     });
 
     it('should override a memory', () => {
-      const memory = { key: 'test2', val: 1, ttl: 10000 };
+      const memory = { key: 'test2', value: 1, ttl: 10000 };
 
       return cache.set(memory)
         .spread((mem) => {
@@ -114,16 +115,16 @@ describe('plugin', () => {
           expect(mem).to.have.property('key', memory.key);
           expect(mem).to.have.property('lifespan', memory.ttl);
           expect(mem).to.have.property('ttl');
-          expect(mem).to.have.property('val', memory.val);
+          expect(mem).to.have.property('value', memory.value);
         });
     });
   });
 
   describe('update memories', () => {
-    it('should update a single memory value without affecting expires', () => {
+    it('should update a single memory valueue without affecting expires', () => {
       let expires;
 
-      memories[0].val = 3;
+      memories[0].value = 3;
 
       return cache.update(memories[0])
         .spread((memory) => {
@@ -131,9 +132,9 @@ describe('plugin', () => {
           expect(memory).to.have.property('key', memories[0].key);
           expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
-          expect(memory).to.have.property('val', memories[0].val);
+          expect(memory).to.have.property('value', memories[0].value);
 
-          memories[0].val = 4;
+          memories[0].value = 4;
           expires = memory.expires;
 
           return cache.update(memories[0]);
@@ -143,16 +144,16 @@ describe('plugin', () => {
           expect(memory).to.have.property('key', memories[0].key);
           expect(memory).to.have.property('lifespan', memories[0].ttl);
           expect(memory).to.have.property('ttl');
-          expect(memory).to.have.property('val', memories[0].val);
+          expect(memory).to.have.property('value', memories[0].value);
         });
     });
 
-    it('should update multiple memories values without affecting expires', () => {
+    it('should update multiple memories valueues without affecting expires', () => {
       const expires = [];
 
       const updateMemories = [
-        { key: 'test1', val: 3 },
-        { key: 'test2', val: 4 }
+        { key: 'test1', value: 3 },
+        { key: 'test2', value: 4 }
       ];
 
       return cache.update(updateMemories)
@@ -164,13 +165,13 @@ describe('plugin', () => {
             expect(memory).to.have.property('key', updateMemories[i].key);
             expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
-            expect(memory).to.have.property('val', updateMemories[i].val);
+            expect(memory).to.have.property('value', updateMemories[i].value);
 
             expires.push(memory.expires);
           });
 
-          updateMemories[0].val = 5;
-          updateMemories[1].val = 6;
+          updateMemories[0].value = 5;
+          updateMemories[1].value = 6;
 
           return cache.update(updateMemories);
         })
@@ -182,13 +183,13 @@ describe('plugin', () => {
             expect(memory).to.have.property('key', updateMemories[i].key);
             expect(memory).to.have.property('lifespan');
             expect(memory).to.have.property('ttl');
-            expect(memory).to.have.property('val', updateMemories[i].val);
+            expect(memory).to.have.property('value', updateMemories[i].value);
           });
         });
     });
 
     it('should return undefined if memory does not exist', () => {
-      const memory = { key: 'forgot', val: 1 };
+      const memory = { key: 'forgot', value: 1 };
 
       return cache.update(memory)
         .spread((mem) => expect(mem).to.be.undefined);
@@ -198,23 +199,19 @@ describe('plugin', () => {
   describe('delete memories', () => {
     it('should delete a single memory', () => {
       return cache.delete(memories[0].key)
-        .spread((result) => expect(result).to.be.true);
+        .then((result) => expect(result).to.be.true);
     });
 
     it('should delete multiple memories', () => {
       const keys = memories.map((memory) => memory.key);
 
       return cache.delete(keys)
-        .then((results) => {
-          expect(results).to.have.lengthOf(2);
-
-          results.forEach((result) => expect(result).to.be.true);
-        });
+        .then((result) => expect(result).to.be.true);
     });
 
     it('should return true even when deleting non-existing memory', () => {
       return cache.delete('forgot')
-        .spread((result) => expect(result).to.be.true);
+        .then((result) => expect(result).to.be.true);
     });
   });
 
@@ -234,11 +231,11 @@ describe('plugin', () => {
   describe('timing', () => {
     it('should wipe memories after their ttl is up', () => {
       cache = new Reminisce({
-        memories: { key: 'timeout1', val: 1 },
+        memories: { key: 'timeout1', value: 1 },
         ttl: 10
       });
 
-      return cache.set({ key: 'timeout2', val: 1, ttl: 10 })
+      return cache.set({ key: 'timeout2', value: 1, ttl: 10 })
         .delay(20)
         .then(() => cache.get([ 'timeout1', 'timeout2' ]))
         .then((results) => {
