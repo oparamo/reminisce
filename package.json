@@ -1,0 +1,43 @@
+{
+  "name": "reminisce",
+  "version": "0.1.0",
+  "description": "Simple Node.js caching module with promises.",
+  "engines": { "node": "^4.0.0" },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "NODE_ENV=test mocha",
+    "posttest": "eslint .",
+    "test-ci": "NODE_ENV=test istanbul cover _mocha",
+    "test-cov": "NODE_ENV=test istanbul cover _mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oparamo/reminisce.git"
+  },
+  "keywords": [
+    "cache",
+    "caching",
+    "reminisce"
+  ],
+  "author": "Oscar Paramo <oscar.paramo@me.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oparamo/reminisce/issues"
+  },
+  "homepage": "https://github.com/oparamo/reminisce#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^2.13.1",
+    "eslint-config-vinli": "^5.1.0",
+    "eslint-plugin-mocha": "^2.2.0",
+    "istanbul": "^0.4.4",
+    "mocha": "^3.0.2"
+  },
+  "dependencies": {
+    "bluebird": "3.4.1"
+  }
+}
